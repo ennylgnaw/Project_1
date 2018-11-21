@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
+
 char ** parse_args(char * line) {
   char ** arrP = calloc(5, sizeof(char *));
   for(int i = 0; line; i++)
