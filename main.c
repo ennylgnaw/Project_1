@@ -24,6 +24,10 @@ char * findDir() {
     return dir;
 }
 
+int cd(char * path) {
+    chdir(path);
+}
+
 int main() {
   while (1) {
     char cmd[256];
@@ -44,5 +48,6 @@ int main() {
     }
     else if (strcmp(cmd2, "exit") == 0)
       exit(0);
+    else cd(args[1]);
   }
 }
