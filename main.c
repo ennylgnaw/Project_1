@@ -4,6 +4,10 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <dirent.h>
+#include <limits.h>
 
 char ** parse_args(char * line) {
   char ** arrP = calloc(5, sizeof(char *));
@@ -12,11 +16,19 @@ char ** parse_args(char * line) {
   return arrP;
 }
 
+char * findDir() {
+    char cwd[PATH_MAX];
+    char * dir;
+    getcwd(cwd, sizeof(cwd));
+    dir = cwd;
+    return dir;
+}
+
 int main() {
   while (1) {
     char cmd[256];
     cmd[0] = 0;
-    printf("Enter a command$ ");
+    printf("\n%s $ ", findDir() );
     fgets(cmd, 256, stdin);
     char *cmd2 = cmd;
     cmd2 = strsep(&cmd2, "\n");
