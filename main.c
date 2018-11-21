@@ -54,4 +54,5 @@ int main() {
         else cd(args[1]);
     }
   }
+  return 0;
 }
