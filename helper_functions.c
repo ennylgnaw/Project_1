@@ -9,15 +9,6 @@
 #include <dirent.h>
 #include <limits.h>
 
-/* Takes a char * line which contains two commands separated by a semicolon and separates it into a char * array.
- * Returns the array. */
-char ** sep_cmds(char * line) {
-  char ** arrP = calloc(5, sizeof(char *));
-  for(int i = 0; line; i++)
-    arrP[i] = strsep(&line, ";");
-  return arrP;
-}
-
 /* Takes a char * line and separates it by spaces into a char * array. Returns the array.*/
 char ** parse_args(char * line) {
   char ** arrP = calloc(5, sizeof(char *));
@@ -25,6 +16,15 @@ char ** parse_args(char * line) {
     arrP[i] = strsep(&line, " ");
   return arrP;
 }
+
+/* Takes a char * line which contains two commands separated by a semicolon and separates it into a char * array.
+ * Returns the array. */
+char ** sep_cmds(char * line) {
+  char ** arrP = calloc(5, sizeof(char *));
+  for(int i = 0; line; i++) arrP[i] = strsep(&line, ";");
+  return arrP;
+}
+
 
 /* Finds the current working directory and returns it as a string. */
 char * findDir() {
