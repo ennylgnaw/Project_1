@@ -28,16 +28,16 @@ int main() {
             int f = fork();
             if (! f) {
                 execvp(args[0], args); // executes any command that is not exit or cd.
-                exit(0);
             }
             int status;
             wait(&status);
         }
-        else if (strcmp(cmds[i], "exit") == 0) // EXIT implementation
-        exit(0);
-        else {
-            if (!cd(args[1]) ) printf("\x1b[31mNo directory %s found. Did not change direcctory.\n \x1b[0m", args[1]); // CD implementation
-        }
+        else if (strcmp(cmds[0], "exit") == 0) // EXIT implementation
+            exit(0);
+            else if (strcmp(cmds[0], "cd") == 0) { //CD implementation 
+                if (!cd(args[1]) ) printf("\x1b[31mNo directory %s found.\n\x1b[0m", args[1]); // CD implementation
+            }
+            else printf("\x1b[31mCommand %s not found.\n\x1b[0m", cmds[0]);
     }
   }
   return 0;
