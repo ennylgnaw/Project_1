@@ -37,7 +37,6 @@ int main() {
             else if (strcmp(cmds[0], "cd") == 0) { //CD implementation 
                 if (!cd(args[1]) ) printf("\x1b[31mNo directory %s found.\n\x1b[0m", args[1]); // CD implementation
             }
-            else printf("\x1b[31mCommand %s not found.\n\x1b[0m", cmds[0]);
     }
   }
   return 0;
