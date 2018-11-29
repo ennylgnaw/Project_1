@@ -9,6 +9,9 @@
 #include <dirent.h>
 #include <limits.h>
 
+#define READ 0
+#define WRITE 1
+
 /* Takes a char * line and separates it by spaces into a char * array. Returns the array.*/
 char ** parse_args(char * line) {
   char ** arrP = calloc(5, sizeof(char *));
@@ -39,4 +42,45 @@ char * findDir() {
 int cd(char * path) {
     if (chdir(path)) return 0;
     else return 1;
+} 
+
+void execr( char * cmd) {
+    char ** cmds = sep_cmds(cmd);
+    for (int i = 0; cmds[i]; i++) {
+        char ** args = parse_args(cmds[i]); // creating an array of string from the fgets input, calling parse_args
+        if (! (strcmp(cmds[i], "exit") == 0 || strcmp(cmds[i], "cd") == 0)) {
+            int f = fork();
+            if (! f) {
+                execvp(args[0], args); // executes any command that is not exit or cd.
+            }
+            int status;
+            wait(&status);
+        }
+        else if (strcmp(cmds[0], "exit") == 0) // EXIT implementation
+            exit(0);
+        else if (strcmp(cmds[0], "cd") == 0) { //CD implementation 
+            if (!cd(args[1]) ) printf("\x1b[31mNo directory %s found.\n\x1b[0m", args[1]); // CD implementation
+        }
+    }
+}
+
+void pipe_cmds(char * first_pipe, char * second_pipe) {
+    if (!fork()) {
+        int desc[2];
+        pipe( desc);
+        if ( !fork()) { //the child
+            close( desc[READ]);
+            dup2( desc[WRITE], STDOUT_FILENO);
+            execlp("ls", "ls", NULL);
+            close( desc[WRITE]);
+        }
+        else {
+            char ** args = parse_args( second_pipe);
+            close(READ);
+            dup(desc[READ]);
+            close(desc[WRITE]);
+            execvp(args[0], args);
+        }   
+    }
+    wait(0);
 }
