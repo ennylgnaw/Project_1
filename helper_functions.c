@@ -46,18 +46,24 @@ int cd(char * path) {
     else return 1;
 } 
 
+
+/* Takes a char * cmd and separates it, first by semicolon.
+ * Checks if there is any pipe nonsense involved - if so, redirects the command into pipe_cmds.
+ * Then, separates by spaces.
+ * Returns void; prints the results of executing the command.
+ */
 void execr( char * cmd) {
     char ** cmds = sep_cmds(cmd); //separates by semicolon 
     for (int i = 0; cmds[i]; i++) {
         
         char * cmd1 = cmds[i];
-        char * cmd2 = strsep(&cmd1, "|");
+        char * cmd2 = strsep(&cmd1, "|"); //checks if there's a pipe in the comand; if yes, redirects the command to pipe_cmds
         if ( cmd1) { 
             pipe_cmds( cmd2, cmd1 );
             return;
         }   //executes the command, but with a pipe
     
-        char ** args = parse_args(cmds[i]); // creating an array of string from the fgets input, calling parse_args
+        char ** args = parse_args(cmds[i]); // separates by spaces
     
         if (! (strcmp(cmds[i], "exit") == 0 || strcmp(cmds[i], "cd") == 0)) {
             int f = fork();
@@ -74,6 +80,11 @@ void execr( char * cmd) {
         }
     }
 }
+
+/* Takes a char * first_pipe command and a char * second_pipe command.
+ * Redirects the output from executing first_pipe into the input of second_pipe. 
+ * Returns void; prints the results of executing the command.
+ */
 
 void pipe_cmds(char * first_pipe, char * second_pipe) {
     if (!fork()) {

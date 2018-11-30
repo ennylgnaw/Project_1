@@ -11,7 +11,9 @@
 #include "helper_functions.h" 
 
 /* Main function: asks for a command, executes the command, and loops. Returns 0.
- * All of the other functions are in helper_functions.c, with the headers in helper_functions.h. */
+ * All of the other functions are in helper_functions.c, with the headers in helper_functions.h.
+ * The actual execution of stuff has been made into a helper function, for readability purposes.
+ */
 int main() {
   while (1) {
     char cmds[256];
