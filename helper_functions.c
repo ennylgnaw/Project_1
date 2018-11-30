@@ -12,6 +12,8 @@
 #define READ 0
 #define WRITE 1
 
+void pipe_cmds(char * first_pipe, char * second_pipe);
+
 /* Takes a char * line and separates it by spaces into a char * array. Returns the array.*/
 char ** parse_args(char * line) {
   char ** arrP = calloc(5, sizeof(char *));
@@ -45,9 +47,18 @@ int cd(char * path) {
 } 
 
 void execr( char * cmd) {
-    char ** cmds = sep_cmds(cmd);
+    char ** cmds = sep_cmds(cmd); //separates by semicolon 
     for (int i = 0; cmds[i]; i++) {
+        
+        char * cmd1 = cmds[i];
+        char * cmd2 = strsep(&cmd1, "|");
+        if ( cmd1) { 
+            pipe_cmds( cmd2, cmd1 );
+            return;
+        }   //executes the command, but with a pipe
+    
         char ** args = parse_args(cmds[i]); // creating an array of string from the fgets input, calling parse_args
+    
         if (! (strcmp(cmds[i], "exit") == 0 || strcmp(cmds[i], "cd") == 0)) {
             int f = fork();
             if (! f) {
@@ -71,7 +82,8 @@ void pipe_cmds(char * first_pipe, char * second_pipe) {
         if ( !fork()) { //the child
             close( desc[READ]);
             dup2( desc[WRITE], STDOUT_FILENO);
-            execlp("ls", "ls", NULL);
+            char ** args = parse_args( first_pipe);
+            execvp(args[0], args);
             close( desc[WRITE]);
         }
         else {

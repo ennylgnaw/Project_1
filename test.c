@@ -14,20 +14,13 @@
  * All of the other functions are in helper_functions.c, with the headers in helper_functions.h. */
 int main() {
   while (1) {
-    char cmd[256];
-    cmd[0] = 0;
+    char cmds[256];
+    cmds[0] = 0;
     printf("\x1b[36m\n%s $ \x1b[0m", findDir() );
-    fgets(cmd, 256, stdin); // input through fgets
-    char *cmd2 = cmd;
-    cmd2 = strsep(&cmd2, "\n"); // removing the newline from the fgets input
-    char * cmd1 = cmd2;
-    cmd2 = strsep(&cmd1, "|");
-    if ( cmd1) { 
-        pipe_cmds(cmd2, cmd1); 
-    }   //executes the command, but with a pipe
-    else {
-        execr(cmd2); //executes the command
-    }
+    fgets(cmds, 256, stdin); // input through fgets
+    char *cmd = cmds;
+    cmd = strsep(&cmd, "\n"); // removing the newline from the fgets input
+    execr( cmd); //executes the command
   }
   return 0;
 }
