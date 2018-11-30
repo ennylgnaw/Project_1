@@ -20,6 +20,7 @@ int main() {
     cmds[0] = 0;
     printf("\x1b[36m\n%s $ \x1b[0m", findDir() );
     fgets(cmds, 256, stdin); // input through fgets
+    printf("%s\n", cmds);
     char *cmd = cmds;
     cmd = strsep(&cmd, "\n"); // removing the newline from the fgets input
     execr( cmd); //executes the command
