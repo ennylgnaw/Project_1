@@ -6,13 +6,13 @@ Shell by Ela Gulsen and Lynne Wang
 
 Displays current directory, and then prompts for command(s)
 Support for all commands, including cd and exit
-Commands must be separated by a single space (ex. ls -l) 
-Multiple commands can be separated by a single semicolon, with no space. (Ex. cd ..;ls)
-Funky and unique color scheme
+All commands and arguments can be separated by any number of spaces! Go wild! 
+Multiple commands can be separated by a single semicolon (Ex. cd .. ; ls)
+Pipe fun! Separate two commands by a pipe and see the input-output switcheroo magic happen before your very eyes! (Ex. ls -l | wc)
+Funky and unique color scheme! -- try "man theme"!
 
 # Unsuccessful Features
 
 # Known Bugs
-Can't execute more than four commands. (Ex. ls;ls;ls;ls;ls crashes the program.)
 
 # Functions
