@@ -15,6 +15,7 @@
 
 void pipe_cmds(char * first_pipe, char * second_pipe); 
 void redirect_cmd_file(char * cmd, char * file);
+void redirect_file_cmd(char * cmd, char * file);
 
 /* Helper function for parse_args.
  * Fixes up the bad array (passed from parse_args)
@@ -80,29 +81,34 @@ void execr( char * cmd) {
         char * cmd2 = strsep(&cmd1, "|"); //checks if there's a pipe in the comand; if yes, redirects the command to pipe_cmds
         if ( cmd1) { 
             pipe_cmds( cmd2, cmd1 );
+            return;
         }   //executes the command, but with a pipe
-        else {
-            char * cmd3 = strsep(&cmd2, ">");
-            if ( cmd2) {
-                redirect_cmd_file( cmd3, cmd2);
+        
+        char * cmd3 = strsep(&cmd2, "<");
+        if ( cmd2) {
+            redirect_file_cmd( cmd3, cmd2);
+            return;
+        }  
+        
+        char * cmd4 = strsep(&cmd3, ">");
+        if ( cmd3) {
+            redirect_cmd_file( cmd4, cmd3);
+            return;
+        }
+        
+        char ** args = parse_args(cmds[i]); // separates by spaces
+        if (! (strcmp(cmds[i], "exit") == 0 || strcmp(cmds[i], "cd") == 0)) {
+            int f = fork();
+            if (! f) {
+                execvp(args[0], args); // executes any command that is not exit or cd.
             }
-            else {
-                char ** args = parse_args(cmds[i]); // separates by spaces
-                if (! (strcmp(cmds[i], "exit") == 0 || strcmp(cmds[i], "cd") == 0)) {
-                    int f = fork();
-                    if (! f) {
-                        execvp(args[0], args); // executes any command that is not exit or cd.
-                    }
-                    int status;
-                    wait(&status);
-                }
-                else if (strcmp(cmds[0], "exit") == 0) // EXIT implementation
-                    exit(0);
-                else if (strcmp(cmds[0], "cd") == 0) { //CD implementation 
-                    if (!cd(args[1]) ) printf("\x1b[31mNo directory %s found.\n\x1b[0m", args[1]); // CD implementation
-                }
-            }
-            
+            int status;
+            wait(&status);
+        }
+        else if (strcmp(cmds[0], "exit") == 0) // EXIT implementation
+            exit(0);
+        else if (strcmp(cmds[0], "cd") == 0) { //CD implementation 
+            if (!cd(args[1]) ) printf("\x1b[31mNo directory %s found.\n\x1b[0m", args[1]); // CD implementation
         }
     }
 }
@@ -134,6 +140,11 @@ void pipe_cmds(char * first_pipe, char * second_pipe) {
     wait(0);
 }
 
+/* Redirects the output of a command into a file.
+ * Takes a char * cmd and a char * file. Return type void.
+ * Prints the results of executing the command.
+ */
+
 void redirect_cmd_file(char * cmd, char * file) {
     if (!fork()) {
         char ** files = parse_args( file);
@@ -143,6 +154,34 @@ void redirect_cmd_file(char * cmd, char * file) {
         dup2(f, STDOUT_FILENO);
         char ** args = parse_args( cmd);
         execvp(args[0], args);
+    }
+    wait(0);
+}
+
+/* Redirects a file into the input of a command. Not to bbe confused with redirect_cmd_file.
+ * Takes a char * cmd and a char * file. Return type void.
+ * Prints the results of executing the command.
+ * Handles multiple redirects (ex. tr a-z A-Z < wholist > foo)
+ */
+
+void redirect_file_cmd(char * cmd, char * file) {
+    if (!fork()) {
+        char * file2 = file;
+        file = strsep(&file2, ">");
+        char ** files = parse_args( file);
+        int f = open( files[0], O_RDONLY );
+        dup2(f, STDIN_FILENO);
+        char ** args = parse_args( cmd);
+        
+        if (file2) {
+            file2 = parse_args(file2)[0];
+            int f = open( file2, O_CREAT|O_EXCL, 0644 );
+            close(f);
+            f = open( file2, O_WRONLY );
+            dup2(f, STDOUT_FILENO);
+        }
+        execvp(args[0], args);
+
     }
     wait(0);
 }
