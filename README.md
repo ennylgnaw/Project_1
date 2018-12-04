@@ -19,7 +19,7 @@ Shell by Ela Gulsen and Lynne Wang
 - Themes/user changing shell color
 
 # Known Bugs
-- None... we think.
+- Other than the stated limitations (see Unsuccessful Features), none... we think.
 
 # Functions
 #### 1) char ** remove_nulls(char ** badArr)
