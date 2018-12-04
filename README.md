@@ -12,7 +12,8 @@ Shell by Ela Gulsen and Lynne Wang
 - Funky and unique color scheme!
 
 # Unsuccessful Features
-Could not get redirection to work
+- Could not get redirection to work
+- Multiple pipes
 
 # Known Bugs
 

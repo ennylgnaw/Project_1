@@ -8,11 +8,13 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <limits.h>
+#include <fcntl.h>
 
 #define READ 0
 #define WRITE 1
 
-void pipe_cmds(char * first_pipe, char * second_pipe);
+void pipe_cmds(char * first_pipe, char * second_pipe); 
+void redirect_cmd_file(char * cmd, char * file);
 
 /* Helper function for parse_args.
  * Fixes up the bad array (passed from parse_args)
@@ -80,20 +82,27 @@ void execr( char * cmd) {
             pipe_cmds( cmd2, cmd1 );
         }   //executes the command, but with a pipe
         else {
-            char ** args = parse_args(cmds[i]); // separates by spaces
-            if (! (strcmp(cmds[i], "exit") == 0 || strcmp(cmds[i], "cd") == 0)) {
-                int f = fork();
-                if (! f) {
-                    execvp(args[0], args); // executes any command that is not exit or cd.
+            char * cmd3 = strsep(&cmd2, ">");
+            if ( cmd2) {
+                redirect_cmd_file( cmd3, cmd2);
+            }
+            else {
+                char ** args = parse_args(cmds[i]); // separates by spaces
+                if (! (strcmp(cmds[i], "exit") == 0 || strcmp(cmds[i], "cd") == 0)) {
+                    int f = fork();
+                    if (! f) {
+                        execvp(args[0], args); // executes any command that is not exit or cd.
+                    }
+                    int status;
+                    wait(&status);
                 }
-                int status;
-                wait(&status);
+                else if (strcmp(cmds[0], "exit") == 0) // EXIT implementation
+                    exit(0);
+                else if (strcmp(cmds[0], "cd") == 0) { //CD implementation 
+                    if (!cd(args[1]) ) printf("\x1b[31mNo directory %s found.\n\x1b[0m", args[1]); // CD implementation
+                }
             }
-            else if (strcmp(cmds[0], "exit") == 0) // EXIT implementation
-                exit(0);
-            else if (strcmp(cmds[0], "cd") == 0) { //CD implementation 
-                if (!cd(args[1]) ) printf("\x1b[31mNo directory %s found.\n\x1b[0m", args[1]); // CD implementation
-            }
+            
         }
     }
 }
@@ -121,6 +130,19 @@ void pipe_cmds(char * first_pipe, char * second_pipe) {
             close(desc[WRITE]);
             execvp(args[0], args);
         }   
+    }
+    wait(0);
+}
+
+void redirect_cmd_file(char * cmd, char * file) {
+    if (!fork()) {
+        char ** files = parse_args( file);
+        int f = open( files[0], O_CREAT|O_EXCL, 0644 );
+        close(f);
+        f = open( files[0], O_WRONLY );
+        dup2(f, STDOUT_FILENO);
+        char ** args = parse_args( cmd);
+        execvp(args[0], args);
     }
     wait(0);
 }
